@@ -27,7 +27,7 @@ gameIsInstalled() { # Checks if the given game is currently installed on the dev
     [ -d "$installingLocation$1" ];
 }
 getGameVersion() {
-    cd ../$gameName;
+    cd ../$repoName;
     version=$(git branch --show-current);
     cd - > /dev/null;
 }
@@ -78,6 +78,7 @@ fi
 getGameVersion; # version stored on variable 'version'
 fullName=$repoName\_$version; # Full name of the repository
 gameName=$(echo $repoName | sed -e 's/PY\-//' -e 's/[\-_]/ /g');
+
 case $mode in
     install)
         if gameIsInstalled $fullName; then
@@ -88,7 +89,7 @@ case $mode in
 
         # Create the game folder with the code
         mkdir $installingLocation$fullName;
-        cp ../$full/* $installingLocation$fullName/ -r;
+        cp ../$repoName/* $installingLocation$fullName/ -r;
 
         echo "cd $installingLocation$fullName/; python3 main.py;" > $installingLocation$fullName/play.sh;
         chmod 755 $installingLocation$fullName/play.sh
@@ -106,9 +107,9 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         echo "Game installed!";
         ;;
     update)
-        if ! gameIsInstalled $gameName; then
-            error "$gameName isn't installed on this device.";
-        fi
+        # if ! gameIsInstalled $gameName; then
+        #     error "$gameName isn't installed on this device.";
+        # fi
         
         # ! Temporal hardcoding unistall
         rm -rf $installingLocation$fullName;
