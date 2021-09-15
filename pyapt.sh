@@ -35,6 +35,8 @@ getGameVersion() {
 # VARIABLES
 installingLocation="/home/$USER/.games/";
 gameName="";
+repoName="";
+fullName="";
 mode=""; # install, unistall, update
 
 
@@ -54,10 +56,10 @@ case $1 in
 esac
 
 if [ ! -z $2 ]; then
-    gameName=$2;
+    repoName=$2;
 else
     ask "Name of the repository?"
-    gameName=$askResponse;
+    repoName=$askResponse;
 fi
 
 # Check location to store the games exist
@@ -66,58 +68,63 @@ if [ ! -d "$installingLocation" ]; then
     echo "Created location to install the games: $installingLocation"
 fi
 
-
+# Confirm action
 # ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
 # if [ ! $askResponse = "yes" ]; then
 #     error "Aborted";
 # fi
 
 
-getGameVersion;
-gameFolderName=$gameName\_$version;
+getGameVersion; # version stored on variable 'version'
+fullName=$repoName\_$version; # Full name of the repository
+gameName=$(echo $repoName | sed -e 's/PY\-//' -e 's/[\-_]/ /g');
 case $mode in
     install)
-        if gameIsInstalled $gameFolderName; then
-            error "The game $gameName is already installed."
+        if gameIsInstalled $fullName; then
+            error "The game $fullName is already installed."
         fi
 
         echo "Installing $gameName, $version version.";
 
         # Create the game folder with the code
-        mkdir $installingLocation$gameFolderName;
-        cp ../$gameName/* $installingLocation$gameFolderName/ -r;
+        mkdir $installingLocation$fullName;
+        cp ../$full/* $installingLocation$fullName/ -r;
 
-        echo "cd $installingLocation$gameFolderName/; python3 main.py;" > $installingLocation$gameFolderName/play.sh;
-        chmod 755 $installingLocation$gameFolderName/play.sh
+        echo "cd $installingLocation$fullName/; python3 main.py;" > $installingLocation$fullName/play.sh;
+        chmod 755 $installingLocation$fullName/play.sh
 
         echo "[Desktop Entry]
 Type=Application
 Encoding=UTF-8
-Name=$gameFolderName
+Name=$gameName
 Comment=Made by Jkutkut
-Exec=$installingLocation$gameFolderName/play.sh
-Icon=$installingLocation$gameFolderName/Res/logo.png
-Terminal=false" >> $gameFolderName.desktop && # create the .desktop file
+Exec=$installingLocation$fullName/play.sh
+Icon=$installingLocation$fullName/Res/logo.png
+Terminal=false" >> $fullName.desktop && # create the .desktop file
 
-        sudo mv $gameFolderName.desktop /usr/share/applications/
+        sudo mv $fullName.desktop /usr/share/applications/
         echo "Game installed!";
         ;;
     update)
         if ! gameIsInstalled $gameName; then
             error "$gameName isn't installed on this device.";
         fi
-
-        echo "Updating $gameName.";
         
-        echo "Game udated.";
+        # ! Temporal hardcoding unistall
+        rm -rf $installingLocation$fullName;
+        sudo rm /usr/share/applications/$fullName.desktop;
+
+        # echo "Updating $gameName.";
+        
+        # echo "Game udated.";
         ;;
     unistall)
-        if ! gameIsInstalled $gameFolderName; then
-            error "$gameName isn't installed on this device.";
+        if ! gameIsInstalled $fullName; then
+            error "$fullName isn't installed on this device.";
         fi
 
         echo "unistalling...";
-        
+
         echo "game removed";
         ;;
     *)
