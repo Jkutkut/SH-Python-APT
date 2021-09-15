@@ -25,6 +25,7 @@ error() { # function to generate the error messages. If executed, ends the scrip
 }
 
 # VARIABLES
+installingLocation="/home/$USER/.games/";
 gameName="";
 mode="install"; # install, unistall, update
 
@@ -68,6 +69,10 @@ while [ ! -z $1 ]; do # While the are avalible arguments
     # eval $v="$vContent";
 done
 
+if [ ! -d "$installingLocation" ]; then
+    mkdir $installingLocation;
+    echo "Created location to install the games: $installingLocation"
+fi
 
 case $mode in
     install|update)
