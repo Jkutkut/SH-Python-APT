@@ -23,6 +23,14 @@ error() { # function to generate the error messages. If executed, ends the scrip
     $1${NC}";
     exit 1
 }
+gameIsInstalled() { # Checks if the given game is currently installed on the device
+    name=$1;
+    if [ -d "$installingLocation$name" ]; then
+        true;
+    else
+        false;
+    fi
+}
 
 # VARIABLES
 installingLocation="/home/$USER/.games/";
@@ -61,22 +69,37 @@ fi
 
 version=$(git branch --show-current);
 
-ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
-if [ ! $askResponse = "yes" ]; then
-    error "Aborted";
-fi
+# ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
+# if [ ! $askResponse = "yes" ]; then
+#     error "Aborted";
+# fi
 
 case $mode in
     install)
+        if gameIsInstalled $gameName; then
+            error "The game $gameName is already installed."
+        fi
+
         echo "Installing $version version of $gameName...";
+
         echo "Game installed!";
         ;;
     update)
+        if ! gameIsInstalled $gameName; then
+            error "There's no game called $gameName installed on this device.";
+        fi
+
         echo "Updating $gameName.";
+        
         echo "Game udated.";
         ;;
     unistall)
+        if ! gameIsInstalled $gameName; then
+            error "There's no game called $gameName installed on this device.";
+        fi
+
         echo "unistalling...";
+        
         echo "game removed";
         ;;
     *)
