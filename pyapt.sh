@@ -27,69 +27,53 @@ error() { # function to generate the error messages. If executed, ends the scrip
 # VARIABLES
 installingLocation="/home/$USER/.games/";
 gameName="";
-mode="install"; # install, unistall, update
+mode=""; # install, unistall, update
 
 
-# Change the mode based on the arguments
-while [ ! -z $1 ]; do # While the are avalible arguments
-    v=""; # Variable to change
-    vContent=""; # Value to asing to the variable
-    q=""; # Question to tell the user if no further arguments given
+# Get mode and gameName
+case $1 in
+    install)
+        mode="install";
+        ;;
+    unistall)
+        mode="unistall";
+        ;;
+    update)
+        mode="update";
+        ;;
+    *)
+        error "Invalid argument";
+esac
 
-    case $1 in
-        install)
-            v="mode";
-            vContent="install";
-            ;;
-        unistall)
-            v="mode";
-            vContent="unistall";
-            ;;
-        update)
-            v="mode";
-            vContent="update";
-            ;;
-        *)
-            error "Invalid argument";
-    esac
+if [ ! -z $2 ]; then
+    gameName=$2;
+else
+    ask "Name of the repository: "
+    gameName=$askResponse;
+fi
 
-    shift; # -ANY argument removed
-        
-    # if [ $(expr match "$1" ^\(-.+\)?$) ]; then # If not given
-    #     ask "$q" ""; # Ask for it
-    #     vContent=$askResponse; # The response is the content
-    # else
-    #     vContent=$1; # Next argument is the content
-    #     shift;
-    # fi
-
-    eval $v="$vContent";
-done
-
+# Check location to store the games exist
 if [ ! -d "$installingLocation" ]; then
     mkdir $installingLocation;
     echo "Created location to install the games: $installingLocation"
 fi
 
+
+version=$(git branch --show-current);
+
+ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
+if [ ! $askResponse = "yes" ]; then
+    error "Aborted";
+fi
+
 case $mode in
-    install|update)
-        gameName=${PWD##*/};
-
-        # ask "The script is about to $mode the game $gameName. Do you want to continue?" "[yes]";
-
-        # if [ ! $askResponse = "yes" ]; then
-        #     error "Aborted";
-        # fi
-
-        version=$(git branch --show-current);
-
-        if [ $mode = "install" ]; then
-            echo "Installing $version version of $gameName...";
-            echo "Game installed!";
-        else
-            echo "Updating $gameName.";
-            echo "Game udated.";
-        fi
+    install)
+        echo "Installing $version version of $gameName...";
+        echo "Game installed!";
+        ;;
+    update)
+        echo "Updating $gameName.";
+        echo "Game udated.";
         ;;
     unistall)
         echo "unistalling...";
