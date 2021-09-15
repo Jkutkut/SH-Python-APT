@@ -74,14 +74,32 @@ fi
 
 
 getGameVersion;
+gameFolderName=$gameName\_$version;
 case $mode in
     install)
-        if gameIsInstalled $gameName; then
+        if gameIsInstalled $gameFolderName; then
             error "The game $gameName is already installed."
         fi
 
         echo "Installing $gameName, $version version.";
 
+        # Create the game folder with the code
+        mkdir $installingLocation$gameFolderName;
+        cp ../$gameName/* $installingLocation$gameFolderName/ -r;
+
+        echo "cd $installingLocation$gameFolderName/; python3 main.py;" > $installingLocation$gameFolderName/play.sh;
+        chmod 755 $installingLocation$gameFolderName/play.sh
+
+        echo "[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=$gameFolderName
+Comment=Made by Jkutkut
+Exec=$installingLocation$gameFolderName/play.sh
+Icon=$installingLocation$gameFolderName/Res/logo.png
+Terminal=false" >> $gameFolderName.desktop && # create the .desktop file
+
+        sudo mv $gameFolderName.desktop /usr/share/applications/
         echo "Game installed!";
         ;;
     update)
@@ -94,7 +112,7 @@ case $mode in
         echo "Game udated.";
         ;;
     unistall)
-        if ! gameIsInstalled $gameName; then
+        if ! gameIsInstalled $gameFolderName; then
             error "$gameName isn't installed on this device.";
         fi
 
