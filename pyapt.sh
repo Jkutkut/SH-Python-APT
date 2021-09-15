@@ -39,6 +39,12 @@ repoName="";
 fullName="";
 mode=""; # install, unistall, update
 
+# SETUP
+# Check location to store the games exist
+if [ ! -d "$installingLocation" ]; then
+    mkdir $installingLocation;
+    echo "Created location to install the games: $installingLocation"
+fi
 
 # Get mode and gameName
 case $1 in
@@ -55,29 +61,24 @@ case $1 in
         error "Invalid argument";
 esac
 
-if [ ! -z $2 ]; then
-    repoName=$2;
-else
-    ask "Name of the repository?"
-    repoName=$askResponse;
+if [ ! $mode = "unistall" ]; then
+    if [ ! -z $2 ]; then # If 2º argument given
+        repoName=$2;
+    else
+        ask "Name of the repository?"
+        repoName=$askResponse;
+    fi
+
+    # Confirm action
+    # ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
+    # if [ ! $askResponse = "yes" ]; then
+    #     error "Aborted";
+    # fi
+
+    getGameVersion; # version stored on variable 'version'
+    fullName=$repoName\_$version; # Full name of the repository
+    gameName=$(echo $repoName | sed -e 's/PY\-//' -e 's/[\-_]/ /g');
 fi
-
-# Check location to store the games exist
-if [ ! -d "$installingLocation" ]; then
-    mkdir $installingLocation;
-    echo "Created location to install the games: $installingLocation"
-fi
-
-# Confirm action
-# ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
-# if [ ! $askResponse = "yes" ]; then
-#     error "Aborted";
-# fi
-
-
-getGameVersion; # version stored on variable 'version'
-fullName=$repoName\_$version; # Full name of the repository
-gameName=$(echo $repoName | sed -e 's/PY\-//' -e 's/[\-_]/ /g');
 
 case $mode in
     install)
@@ -120,13 +121,28 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         # echo "Game udated.";
         ;;
     unistall)
-        if ! gameIsInstalled $fullName; then
-            error "$fullName isn't installed on this device.";
+        len=$(ls $installingLocation -1 | wc -l);
+        if [ $len -eq 0 ]; then
+            error "There aren't any games installed on this device";
         fi
 
-        echo "unistalling...";
+        echo "Installed games:";
+        for i in $(ls $installingLocation -1); do
+            echo "- $i";
+        done
+        echo;
 
-        echo "game removed";
+        ask "Which game do you want to remove?"
+        repoName=$askResponse;
+
+        if ! gameIsInstalled $repoName; then
+            error "$repoName isn't installed on this device.";
+        fi
+
+        echo "Unistalling $repoName...";
+        rm -rf $installingLocation$repoName;
+        sudo rm /usr/share/applications/$repoName.desktop
+        echo "Game removed";
         ;;
     *)
         error "The mode is not valid";
