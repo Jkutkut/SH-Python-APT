@@ -24,12 +24,7 @@ error() { # function to generate the error messages. If executed, ends the scrip
     exit 1
 }
 gameIsInstalled() { # Checks if the given game is currently installed on the device
-    name=$1;
-    if [ -d "$installingLocation$name" ]; then
-        true;
-    else
-        false;
-    fi
+    [ -d "$installingLocation$1" ];
 }
 
 # VARIABLES
@@ -86,7 +81,7 @@ case $mode in
         ;;
     update)
         if ! gameIsInstalled $gameName; then
-            error "There's no game called $gameName installed on this device.";
+            error "$gameName isn't installed on this device.";
         fi
 
         echo "Updating $gameName.";
@@ -95,7 +90,7 @@ case $mode in
         ;;
     unistall)
         if ! gameIsInstalled $gameName; then
-            error "There's no game called $gameName installed on this device.";
+            error "$gameName isn't installed on this device.";
         fi
 
         echo "unistalling...";
