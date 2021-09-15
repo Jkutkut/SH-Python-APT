@@ -26,6 +26,11 @@ error() { # function to generate the error messages. If executed, ends the scrip
 gameIsInstalled() { # Checks if the given game is currently installed on the device
     [ -d "$installingLocation$1" ];
 }
+getGameVersion() {
+    cd ../$gameName;
+    version=$(git branch --show-current);
+    cd - > /dev/null;
+}
 
 # VARIABLES
 installingLocation="/home/$USER/.games/";
@@ -51,7 +56,7 @@ esac
 if [ ! -z $2 ]; then
     gameName=$2;
 else
-    ask "Name of the repository: "
+    ask "Name of the repository?"
     gameName=$askResponse;
 fi
 
@@ -62,20 +67,20 @@ if [ ! -d "$installingLocation" ]; then
 fi
 
 
-version=$(git branch --show-current);
-
 # ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
 # if [ ! $askResponse = "yes" ]; then
 #     error "Aborted";
 # fi
 
+
+getGameVersion;
 case $mode in
     install)
         if gameIsInstalled $gameName; then
             error "The game $gameName is already installed."
         fi
 
-        echo "Installing $version version of $gameName...";
+        echo "Installing $gameName, $version version.";
 
         echo "Game installed!";
         ;;
