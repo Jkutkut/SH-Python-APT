@@ -38,17 +38,14 @@ while [ ! -z $1 ]; do # While the are avalible arguments
 
     case $1 in
         install)
-            echo "install mode";
             v="mode";
             vContent="install";
             ;;
         unistall)
-            echo "unistall mode";
             v="mode";
             vContent="unistall";
             ;;
         update)
-            echo "update mode";
             v="mode";
             vContent="update";
             ;;
@@ -66,7 +63,7 @@ while [ ! -z $1 ]; do # While the are avalible arguments
     #     shift;
     # fi
 
-    # eval $v="$vContent";
+    eval $v="$vContent";
 done
 
 if [ ! -d "$installingLocation" ]; then
@@ -84,13 +81,15 @@ case $mode in
         #     error "Aborted";
         # fi
 
-        version=$(git branch –show-current);
+        version=$(git branch --show-current);
 
-        echo "Installing $version version of $gameName...";
-        
-
-        
-        echo "Done!";
+        if [ $mode = "install" ]; then
+            echo "Installing $version version of $gameName...";
+            echo "Game installed!";
+        else
+            echo "Updating $gameName.";
+            echo "Game udated.";
+        fi
         ;;
     unistall)
         echo "unistalling...";
