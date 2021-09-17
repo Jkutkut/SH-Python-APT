@@ -24,7 +24,7 @@ error() { # function to generate the error messages. If executed, ends the scrip
     exit 1
 }
 gameIsInstalled() { # Checks if the given game is currently installed on the device
-    [ -d "$installingLocation$1" ];
+    [ -d $installingLocation$1 ];
 }
 getGameVersion() {
     cd ../$repoName;
@@ -58,30 +58,30 @@ case $1 in
         mode="update";
         ;;
     *)
-        error "Invalid argument";
+        error "Invalid mode. It must be install, unistall or update";
 esac
-
-if [ ! $mode = "unistall" ]; then
-    if [ ! -z $2 ]; then # If 2º argument given
-        repoName=$2;
-    else
-        ask "Name of the repository?"
-        repoName=$askResponse;
-    fi
-
-    # Confirm action
-    # ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
-    # if [ ! $askResponse = "yes" ]; then
-    #     error "Aborted";
-    # fi
-
-    getGameVersion; # version stored on variable 'version'
-    fullName=$repoName\_$version; # Full name of the repository
-    gameName=$(echo $repoName | sed -e 's/PY\-//' -e 's/[\-_]/ /g');
-fi
 
 case $mode in
     install)
+        if [ ! -z $2 ]; then # If 2º argument given
+            repoName=$2;
+        else
+            echo "Avalible games:\n$(cd ..; ls -d1 PY* | sed -e 's/^/- /'; cd - > /dev/null;)";
+            ask "Name of the repository?"
+            repoName=$askResponse;
+        fi
+
+        # Confirm action
+        # ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
+        # if [ ! $askResponse = "yes" ]; then
+        #     error "Aborted";
+        # fi
+
+        getGameVersion; # version stored on variable 'version'
+        fullName=$repoName\_$version; # Full name of the repository
+        gameName=$(echo $repoName | sed -e 's/PY\-//' -e 's/[\-_]/ /g');
+
+
         if gameIsInstalled $fullName; then
             error "The game $fullName is already installed."
         fi
@@ -108,17 +108,13 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         echo "Game installed!";
         ;;
     update)
-        # if ! gameIsInstalled $gameName; then
-        #     error "$gameName isn't installed on this device.";
-        # fi
+        if ! gameIsInstalled "$repoName"*; then
+            error "$repoName not installed on this device.";
+        fi
         
-        # ! Temporal hardcoding unistall
-        rm -rf $installingLocation$fullName;
-        sudo rm /usr/share/applications/$fullName.desktop;
-
-        # echo "Updating $gameName.";
+        echo "Updating $gameName.";
         
-        # echo "Game udated.";
+        echo "Game udated.";
         ;;
     unistall)
         len=$(ls $installingLocation -1 | wc -l);
@@ -126,11 +122,7 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
             error "There aren't any games installed on this device";
         fi
 
-        echo "Installed games:";
-        for i in $(ls $installingLocation -1); do
-            echo "- $i";
-        done
-        echo;
+        echo "Installed games:\n$(ls -1 $installingLocation | sed -e 's/^/- /')\n";
 
         ask "Which game do you want to remove?"
         repoName=$askResponse;
