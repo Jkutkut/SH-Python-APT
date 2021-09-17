@@ -11,18 +11,21 @@ LBLUE='\033[1;34m'
 TITLE='\033[38;5;33m'
 
 
+# FUNCTIONS
 askResponse=""; #When executing the function ask(), the response will be stored here
 ask() { # to do the read in terminal, save the response in askResponse
     text=$1;
     textEnd=$2;
     read -p "$(echo ${LBLUE}"$text"${NC} $textEnd)->" askResponse;
-}
+};
 error() { # function to generate the error messages. If executed, ends the script.
     err=$1;
     echo "${RED}~~~~~~~~  ERROR ~~~~~~~~
     $1${NC}";
     exit 1
-}
+};
+
+# Getters
 gameIsInstalled() { # Checks if the given game is currently installed on the device
     [ -d $installingLocation$1 ];
 }
@@ -108,7 +111,7 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         echo "Game installed!";
         ;;
     update)
-        if ! gameIsInstalled "$repoName"*; then
+        if ! gameIsInstalled "$repoName"*; then # If game not installed (any version)
             error "$repoName not installed on this device.";
         fi
         
