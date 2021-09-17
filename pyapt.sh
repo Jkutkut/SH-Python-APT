@@ -111,11 +111,30 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         echo "Game installed!";
         ;;
     update)
+        if [ ! -z $2 ]; then # If 2º argument given
+            repoName=$2;
+        else # Get repository name
+            avalible=$(cd ../;ls -d1 PY*; cd - > /dev/null;);
+            echo "Avalible repositories:";
+            for a in $avalible; do # For all games avalible to install, check if installed
+                if gameIsInstalled "$a"*; then
+                    echo "- $a";
+                fi
+            done
+
+            ask "Name of the repository?"
+            repoName=$askResponse;
+        fi
+
         if ! gameIsInstalled "$repoName"*; then # If game not installed (any version)
             error "$repoName not installed on this device.";
         fi
         
         echo "Updating $gameName.";
+
+        echo "Removing old version";
+        # ./pyapt.sh unistall
+        echo "Installing new version";
         
         echo "Game udated.";
         ;;
