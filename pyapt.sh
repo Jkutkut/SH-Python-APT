@@ -132,22 +132,30 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         
         echo "Updating $gameName.";
 
-        echo "Removing old version";
-        # ./pyapt.sh unistall
-        echo "Installing new version";
+        echo "Removing old version" &&
+        ./pyapt.sh unistall $repoName | sed -e 's/^/  /' &&
+
+        echo "Installing new version" &&
+        ./pyapt.sh install $repoName | sed -e 's/^/  /' &&
         
-        echo "Game udated.";
+        echo "Game updated!" ||
+
+        error "Not able to update.";
         ;;
     unistall)
-        len=$(ls $installingLocation -1 | wc -l);
-        if [ $len -eq 0 ]; then
+        if [ $(ls $installingLocation -1 | wc -l) -eq 0 ]; then # Check if games installed
             error "There aren't any games installed on this device";
         fi
 
-        echo "Installed games:\n$(ls -1 $installingLocation | sed -e 's/^/- /')\n";
-
-        ask "Which game do you want to remove?"
-        repoName=$askResponse;
+        if [ ! -z $2 ]; then # If 2º argument given
+            cd $installingLocation;
+            repoName=$(ls -d1 "$2"*);
+            cd - > /dev/null;
+        else
+            echo "Installed games:\n$(ls -1 $installingLocation | sed -e 's/^/- /')\n";
+            ask "Which game do you want to remove?"
+            repoName=$askResponse;
+        fi
 
         if ! gameIsInstalled $repoName; then
             error "$repoName isn't installed on this device.";
