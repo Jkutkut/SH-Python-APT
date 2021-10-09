@@ -69,7 +69,15 @@ case $mode in
         if [ ! -z $2 ]; then # If 2º argument given
             repoName=$2;
         else
-            echo "Avalible games:\n$(cd ..; ls -d1 PY* | sed -e 's/^/- /'; cd - > /dev/null;)";
+            ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
+            avalibleRepos=$(ls -d1 PY* | sed -e 's/^/- /') || # Store their names
+            { # Else, attempt to get them from the parent directory
+                ls ${PWD}/../PY* > /dev/null 2>&1 &&
+                avalibleRepos=$(ls -d1 ../PY* | sed -e 's/^..\//- /') ||
+                error "Not games avalible to be installed";
+            }
+            
+            echo "Avalible games:\n$avalibleRepos";
             ask "Name of the repository?"
             repoName=$askResponse;
         fi
