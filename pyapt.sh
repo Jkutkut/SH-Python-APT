@@ -3,12 +3,7 @@
 #colors:
 NC='\033[0m' # No Color
 RED='\033[0;31m'
-GREEN='\033[0;32m'
-LRED='\033[1;31m'
-LGREEN='\033[1;32m'
-YELLOW='\033[1;33m'
 LBLUE='\033[1;34m'
-TITLE='\033[38;5;33m'
 
 
 # FUNCTIONS
@@ -88,10 +83,10 @@ case $mode in
         fi
 
         # Confirm action
-        # ask "The script is about to $mode the game $gameName $version. Do you want to continue?" "[yes]";
-        # if [ ! $askResponse = "yes" ]; then
-        #     error "Aborted";
-        # fi
+        ask "The script is about to $mode the game $gameName. Do you want to continue?" "[yes]";
+        if [ ! $askResponse = "yes" ]; then
+            error "Aborted";
+        fi
 
         getGameVersion; # version stored on variable 'version'
         fullName=$repoName\_$version; # Full name of the repository
@@ -146,8 +141,14 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         if ! gameIsInstalled "$repoName"*; then # If game not installed (any version)
             error "$repoName not installed on this device.";
         fi
+
+        # Confirm action
+        ask "The script is about to $mode the game $repoName. Do you want to continue?" "[yes]";
+        if [ ! $askResponse = "yes" ]; then
+            error "Aborted";
+        fi
         
-        echo "Updating $gameName.";
+        echo "Updating $repoName.";
 
         echo "Removing old version" &&
         ./pyapt.sh unistall $repoName | sed -e 's/^/  /' &&
@@ -176,6 +177,12 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
 
         if ! gameIsInstalled $repoName; then
             error "$repoName isn't installed on this device.";
+        fi
+
+        # Confirm action
+        ask "The script is about to $mode the game $repoName. Do you want to continue?" "[yes]";
+        if [ ! $askResponse = "yes" ]; then
+            error "Aborted";
         fi
 
         echo "Unistalling $repoName...";
