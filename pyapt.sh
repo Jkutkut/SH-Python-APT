@@ -30,7 +30,12 @@ gameIsInstalled() { # Checks if the given game is currently installed on the dev
     [ -d $installingLocation$1 ];
 }
 getGameVersion() {
-    cd ../$repoName;
+    if [ -d $repoName ]; then
+        cd ./$repoName;
+    else
+        cd ../$repoName;
+    fi
+
     version=$(git branch --show-current);
     cd - > /dev/null;
 }
@@ -101,7 +106,11 @@ case $mode in
 
         # Create the game folder with the code
         mkdir $installingLocation$fullName;
-        cp ../$repoName/* $installingLocation$fullName/ -r;
+        if [ -d $repoName ]; then 
+            cp ./$repoName/* $installingLocation$fullName/ -r;
+        else
+            cp ../$repoName/* $installingLocation$fullName/ -r;
+        fi
 
         echo "cd $installingLocation$fullName/; python3 main.py;" > $installingLocation$fullName/play.sh;
         chmod 755 $installingLocation$fullName/play.sh
