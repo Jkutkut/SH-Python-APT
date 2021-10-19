@@ -83,7 +83,7 @@ case $mode in
         fi
 
         # Confirm action
-        ask "The script is about to $mode the game $gameName. Do you want to continue?" "[yes]";
+        ask "The script is about to $mode the game $repoName. Do you want to continue?" "[yes]";
         if [ ! $askResponse = "yes" ]; then
             error "Aborted";
         fi
