@@ -83,7 +83,7 @@ case $mode in
         fi
 
         # Confirm action
-        ask "The script is about to $mode the game $repoName. Do you want to continue?" "[yes]";
+        ask "The script is about to $mode the game $repoName.\nDo you want to continue?" "[yes]";
         if [ ! $askResponse = "yes" ]; then
             error "Aborted";
         fi
@@ -143,7 +143,7 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         fi
 
         # Confirm action
-        ask "The script is about to $mode the game $repoName. Do you want to continue?" "[yes]";
+        ask "The script is about to $mode the game $repoName.\nDo you want to continue?" "[yes]";
         if [ ! $askResponse = "yes" ]; then
             error "Aborted";
         fi
@@ -180,7 +180,7 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
         fi
 
         # Confirm action
-        ask "The script is about to $mode the game $repoName. Do you want to continue?" "[yes]";
+        ask "The script is about to $mode the game $repoName.\nDo you want to continue?" "[yes]";
         if [ ! $askResponse = "yes" ]; then
             error "Aborted";
         fi
