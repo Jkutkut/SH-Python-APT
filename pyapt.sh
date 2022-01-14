@@ -162,20 +162,21 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
 		echo "Game installed!";
 		;;
 	update)
-		if [ ! -z $2 ]; then # If 2º argument given
-			repoName=$2;
-		else # Get repository name
-			avalible=$(cd ../;ls -d1 PY*; cd - > /dev/null;);
-			echo "Avalible repositories:";
-			for a in $avalible; do # For all games avalible to install, check if installed
-				if gameIsInstalled "$a"*; then
-					echo "- $a";
-				fi
-			done
-
-			ask "Name of the repository?"
-			repoName=$askResponse;
-		fi
+		#if [ ! -z $2 ]; then # If 2º argument given
+		#	repoName=$2;
+		#else # Get repository name
+		#	avalible=$(cd ../;ls -d1 PY*; cd - > /dev/null;);
+		#	echo "Avalible repositories:";
+		#	for a in $avalible; do # For all games avalible to install, check if installed
+		#		if gameIsInstalled "$a"*; then
+		#			echo "- $a";
+		#		fi
+		#	done
+		#	ask "Name of the repository?"
+		#	repoName=$askResponse;
+		#fi
+		# TODO show only the installed and avalibles repos
+		# getRepoName "$2" # get the repository to use in current directory or the one given as argument
 
 		if ! gameIsInstalled "$repoName"*; then # If game not installed (any version)
 			error "$repoName not installed on this device.";
