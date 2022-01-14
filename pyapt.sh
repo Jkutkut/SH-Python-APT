@@ -92,22 +92,16 @@ fi
 
 # Get mode and gameName
 case $1 in
-    install)
-        mode="install"
+    install|unistall|update)
+        #mode="install"
+		mode="$1"
         ;;
-    unistall)
-        mode="unistall"
-        ;;
-    update)
-        mode="update"
-        ;;
-    *)
+	*)
 		selectionMenu "mode" "install unistall update" ""
 		mode=$selection
-		echo "Mode selected: ${YELLOW}$mode${NC}\n"
 		;;
 esac
-
+echo "Mode selected: ${YELLOW}$mode${NC}\n"
 case $mode in
     install)
         if [ ! -z $2 ]; then # If 2º argument given
