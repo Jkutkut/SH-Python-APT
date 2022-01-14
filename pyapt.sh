@@ -102,7 +102,6 @@ case $1 in
         mode="update"
         ;;
     *)
-		#error "Invalid mode. It must be install, unistall or update";
 		selectionMenu "mode" "install unistall update" ""
 		mode=$selection
 		echo "Mode selected: ${YELLOW}$mode${NC}\n"
@@ -115,15 +114,17 @@ case $mode in
             repoName=$2;
         else
             ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
-            avalibleRepos=$(ls -d1 PY* | sed -e 's/^/- /') || # Store their names
+            #avalibleRepos=$(ls -d1 PY* | sed -e 's/^/- /') || # Store their names
+            avalibleRepos=$(ls -d1 PY*) || # Store their names
             { # Else, attempt to get them from the parent directory
                 ls ${PWD}/../PY* > /dev/null 2>&1 &&
-                avalibleRepos=$(ls -d1 ../PY* | sed -e 's/^..\//- /') ||
+                avalibleRepos=$(ls -d1 ../PY* | sed 's/..\///g') ||
                 error "Not games avalible to be installed";
             }
             
-            echo "Avalible games:\n$avalibleRepos";
-            ask "Name of the repository?"
+            #echo "Avalible games:\n$avalibleRepos";
+            #ask "Name of the repository?"
+			selectionMenu "repository" "$avalibleRepos" ""
             repoName=$askResponse;
         fi
 
