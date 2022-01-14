@@ -7,18 +7,55 @@ LBLUE='\033[1;34m'
 
 
 # FUNCTIONS
-askResponse=""; #When executing the function ask(), the response will be stored here
+askResponse="" #When executing the function ask(), the response will be stored here
 ask() { # to do the read in terminal, save the response in askResponse
-    text=$1;
-    textEnd=$2;
-    read -p "$(echo ${LBLUE}"$text"${NC} $textEnd)->" askResponse;
-};
+    text=$1
+    textEnd=$2
+    read -p "$(echo ${LBLUE}"$text"${NC} $textEnd)->" askResponse
+}
+selection="" #When executing the funtion selectionMenu(), the result will be stored here
+selectionMenu() { #allows to create a selection menu. arguments: "template" "op1 opt2..." "skip"
+	elements=$2
+	skipElement=$3
+
+	# Show elements
+	echo "Select a $1:"
+	l=-1
+	for t in $elements; do
+		if [ "$t" = "$skipElement" ]; then
+			continue
+		fi
+		l=$((l + 1))
+		echo " - ${YELLOW}$l${NC} $t"
+	done
+
+	# Ask for the wanted element
+	ask "Wanted $1" "[0-$l]"
+	option=$askResponse
+	if expr "$option" : '[0-9][0-9]*$'>/dev/null &&
+		[ $option -ge 0 ] && [ $option -le $l ]; then
+		# If option is valid, find the option name
+		l=0
+		for t in $elements; do
+			if [ $l -eq $option ]; then
+				selection=$t # Store it here
+				return
+			fi
+			l=$((l + 1))
+		done
+	else
+		echo "${YELLOW}Invalid response${NC}\n"
+		selectionMenu "$1" "$2" "$3"
+	fi
+	unset elements skipElement
+}
 error() { # function to generate the error messages. If executed, ends the script.
     err=$1;
     echo "${RED}~~~~~~~~  ERROR ~~~~~~~~
     $1${NC}";
     exit 1
-};
+}
+
 
 # Getters
 gameIsInstalled() { # Checks if the given game is currently installed on the device
@@ -26,13 +63,13 @@ gameIsInstalled() { # Checks if the given game is currently installed on the dev
 }
 getGameVersion() {
     if [ -d $repoName ]; then
-        cd ./$repoName;
+        cd ./$repoName
     else
-        cd ../$repoName;
+        cd ../$repoName
     fi
 
-    version=$(git branch --show-current);
-    cd - > /dev/null;
+    version=$(git branch --show-current)
+    cd - > /dev/null
 }
 
 # VARIABLES
