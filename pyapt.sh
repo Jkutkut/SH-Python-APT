@@ -1,10 +1,21 @@
 #!/bin/sh
 
+# VARIABLES
+installingLocation="/home/$USER/.games/";
+gameName="";
+repoName="";
+fullName="";
+mode=""; # install, unistall, update
+
 #colors:
 NC='\033[0m' # No Color
 RED='\033[0;31m'
+GREEN='\033[0;32m'
+LRED='\033[1;31m'
+LGREEN='\033[1;32m'
+YELLOW='\033[1;33m'
 LBLUE='\033[1;34m'
-
+TITLE='\033[38;5;33m'
 
 # FUNCTIONS
 askResponse="" #When executing the function ask(), the response will be stored here
@@ -72,13 +83,6 @@ getGameVersion() {
     cd - > /dev/null
 }
 
-# VARIABLES
-installingLocation="/home/$USER/.games/";
-gameName="";
-repoName="";
-fullName="";
-mode=""; # install, unistall, update
-
 # SETUP
 # Check location to store the games exist
 if [ ! -d "$installingLocation" ]; then
@@ -89,16 +93,20 @@ fi
 # Get mode and gameName
 case $1 in
     install)
-        mode="install";
+        mode="install"
         ;;
     unistall)
-        mode="unistall";
+        mode="unistall"
         ;;
     update)
-        mode="update";
+        mode="update"
         ;;
     *)
-        error "Invalid mode. It must be install, unistall or update";
+		#error "Invalid mode. It must be install, unistall or update";
+		selectionMenu "mode" "install unistall update" ""
+		mode=$selection
+		echo "Mode selected: ${YELLOW}$mode${NC}\n"
+		;;
 esac
 
 case $mode in
