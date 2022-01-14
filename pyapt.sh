@@ -82,6 +82,22 @@ getGameVersion() {
 	version=$(git branch --show-current)
 	cd - > /dev/null
 }
+getRepoName() {
+	# Get, select and store the name of the desired repo in the current dir (or parent)
+	if [ ! -z $1 ]; then # If 2º argument given
+		repoName=$1;
+	else
+		ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
+		avalibleRepos=$(ls -d1 PY*) || # Store their names
+		{ # Else, attempt to get them from the parent directory
+			ls ${PWD}/../PY* > /dev/null 2>&1 &&
+			avalibleRepos=$(ls -d1 ../PY*) ||
+			error "Not games avalible to be installed";
+		}
+		selectionMenu "repository" "$avalibleRepos" ""
+		repoName=$askResponse;
+	fi
+}
 
 # SETUP
 # Check location to store the games exist
@@ -93,7 +109,6 @@ fi
 # Get mode and gameName
 case $1 in
 	install|unistall|update)
-		#mode="install"
 		mode="$1"
 		;;
 	*)
@@ -104,28 +119,12 @@ esac
 echo "Mode selected: ${YELLOW}$mode${NC}\n"
 case $mode in
 	install)
-		if [ ! -z $2 ]; then # If 2º argument given
-			repoName=$2;
-		else
-			ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
-			#avalibleRepos=$(ls -d1 PY* | sed -e 's/^/- /') || # Store their names
-			avalibleRepos=$(ls -d1 PY*) || # Store their names
-			{ # Else, attempt to get them from the parent directory
-				ls ${PWD}/../PY* > /dev/null 2>&1 &&
-				avalibleRepos=$(ls -d1 ../PY* | sed 's/..\///g') ||
-				error "Not games avalible to be installed";
-			}
-			
-			#echo "Avalible games:\n$avalibleRepos";
-			#ask "Name of the repository?"
-			selectionMenu "repository" "$avalibleRepos" ""
-			repoName=$askResponse;
-		fi
+		getRepoName "$2" # get the repository to use in current directory or the one given as argument
 
 		# Confirm action
 		ask "The script is about to $mode the game $repoName.\nDo you want to continue?" "[yes]";
 		if [ ! $askResponse = "yes" ]; then
-			error "Aborted";
+			error "Aborting $mode of $repoName";
 		fi
 
 		getGameVersion; # version stored on variable 'version'
