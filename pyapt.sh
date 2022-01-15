@@ -82,22 +82,34 @@ getGameVersion() {
 	version=$(git branch --show-current)
 	cd - > /dev/null
 }
-getRepoName() {
-	# Get, select and store the name of the desired repo in the current dir (or parent)
-	if [ ! -z $1 ]; then # If 2º argument given
-		repoName=$1;
-	else
-		ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
-		avalibleRepos=$(ls -d1 PY*) || # Store their names
-		{ # Else, attempt to get them from the parent directory
-			ls ${PWD}/../PY* > /dev/null 2>&1 &&
-			avalibleRepos=$(ls -d1 ../PY*) ||
-			error "Not games avalible to be installed";
-		}
-		selectionMenu "repository" "$avalibleRepos" ""
-		repoName=$askResponse;
-	fi
+
+getRepos() {
+	ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
+	avalibleRepos=$(ls -d1 PY*) || # Store their names
+	{ # Else, attempt to get them from the parent directory
+		ls ${PWD}/../PY* > /dev/null 2>&1 &&
+		avalibleRepos=$(ls -d1 ../PY*) ||
+		error "Not games avalible to be installed"
+	}
 }
+
+# ! remove
+# getRepoName() {
+# 	# Get, select and store the name of the desired repo in the current dir (or parent)
+# 	if [ ! -z $1 ]; then # If 2º argument given
+# 		repoName=$1;
+# 	else
+# 		ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
+# 		avalibleRepos=$(ls -d1 PY*) || # Store their names
+# 		{ # Else, attempt to get them from the parent directory
+# 			ls ${PWD}/../PY* > /dev/null 2>&1 &&
+# 			avalibleRepos=$(ls -d1 ../PY*) ||
+# 			error "Not games avalible to be installed";
+# 		}
+# 		selectionMenu "repository" "$avalibleRepos" ""
+# 		repoName=$askResponse;
+# 	fi
+# }
 
 # SETUP
 # Check location to store the games exist
@@ -119,10 +131,18 @@ esac
 echo "Mode selected: ${YELLOW}$mode${NC}\n"
 case $mode in
 	install)
-		getRepoName "$2" # get the repository to use in current directory or the one given as argument
+		# Get, select and store the name of the desired repo in the current dir (or parent)
+		if [ ! -z $2 ]; then # If 2º argument given
+			repoName=$2;
+		else
+			getRepos
+			selectionMenu "repository" "$avalibleRepos" ""
+			repoName=$selection
+		fi
 
 		# Confirm action
-		ask "The script is about to $mode the game $repoName.\nDo you want to continue?" "[yes]";
+		echo "\nThe script is about to ${YELLOW}$mode${NC} the game ${YELLOW}$repoName${NC}."
+		ask "Do you want to continue?" "[yes]";
 		if [ ! $askResponse = "yes" ]; then
 			error "Aborting $mode of $repoName";
 		fi
@@ -162,19 +182,19 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
 		echo "Game installed!";
 		;;
 	update)
-		#if [ ! -z $2 ]; then # If 2º argument given
-		#	repoName=$2;
-		#else # Get repository name
-		#	avalible=$(cd ../;ls -d1 PY*; cd - > /dev/null;);
-		#	echo "Avalible repositories:";
-		#	for a in $avalible; do # For all games avalible to install, check if installed
-		#		if gameIsInstalled "$a"*; then
-		#			echo "- $a";
-		#		fi
-		#	done
-		#	ask "Name of the repository?"
-		#	repoName=$askResponse;
-		#fi
+		# if [ ! -z $2 ]; then # If 2º argument given
+		# 	repoName=$2;
+		# else # Get repository name
+		# 	avalible=$(cd ../;ls -d1 PY*; cd - > /dev/null;);
+		# 	echo "Avalible repositories:";
+		# 	for a in $avalible; do # For all games avalible to install, check if installed
+		# 		if gameIsInstalled "$a"*; then
+		# 			echo "- $a";
+		# 		fi
+		# 	done
+		# 	ask "Name of the repository?"
+		# 	repoName=$askResponse;
+		# fi
 		# TODO show only the installed and avalibles repos
 		# getRepoName "$2" # get the repository to use in current directory or the one given as argument
 
