@@ -93,24 +93,6 @@ getRepos() {
 	}
 }
 
-# ! remove
-# getRepoName() {
-# 	# Get, select and store the name of the desired repo in the current dir (or parent)
-# 	if [ ! -z $1 ]; then # If 2º argument given
-# 		repoName=$1;
-# 	else
-# 		ls ${PWD}/PY* > /dev/null 2>&1 && # If Python repos on the current directory
-# 		avalibleRepos=$(ls -d1 PY*) || # Store their names
-# 		{ # Else, attempt to get them from the parent directory
-# 			ls ${PWD}/../PY* > /dev/null 2>&1 &&
-# 			avalibleRepos=$(ls -d1 ../PY*) ||
-# 			error "Not games avalible to be installed";
-# 		}
-# 		selectionMenu "repository" "$avalibleRepos" ""
-# 		repoName=$askResponse;
-# 	fi
-# }
-
 # SETUP
 # Check location to store the games exist
 if [ ! -d "$installingLocation" ]; then
@@ -182,6 +164,23 @@ Terminal=false" >> $fullName.desktop && # create the .desktop file
 		echo "Game installed!";
 		;;
 	update)
+		# Get, select and store the name of the desired repo in the current dir (or parent)
+		if [ ! -z $2 ]; then # If 2º argument given
+			repoName=$2;
+		else
+			getRepos
+			alsoInstalled=""
+			for f in "$avalibleRepos"; do
+				if gameIsInstalled "$(echo $f | sed 's/^\.\.\///')"; then
+					alsoInstalled="$alsoInstalled $f"
+				fi
+			done
+			if [ "$alsoInstalled" = "" ]; then
+				error "There're no games avalible to update"
+			fi
+			selectionMenu "repository" "$alsoInstalled" ""
+			repoName=$selection
+		fi
 		# if [ ! -z $2 ]; then # If 2º argument given
 		# 	repoName=$2;
 		# else # Get repository name
